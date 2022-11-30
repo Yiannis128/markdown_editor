@@ -13,31 +13,67 @@ and the Flutter guide for
 
 # markdown_editor
 
-Flutter markdown editor widget library.
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Flutter library that contains widgets for editing markdown.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Editor toolbar with Markdown basic functions.
+- Full editor widget with a toolbar.
+
+![Thumbnail](thumbnail.png)
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Import the package using Flutter Pub:
+
+```shell
+flutter pub add markdown_editor
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+### Editor
+
+The editor is available as a single widget like so:
 
 ```dart
-const like = 'sample';
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Edit"),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.save),
+        onPressed: () {
+          // Save text here...
+        },
+      ),
+      body: MarkdownEditorWidget(
+        constantFocus: true,
+      ),
+    );
+  }
 ```
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+### Contributing
+
+In order to contribute to the repo, file any issues through GitHub or create a
+fork, and then a pull request in order to request new features be added in.
+Depending on if the pull request contains desired changes, the pull request may
+be accepted or denied. If unsure, please file an issue about it. 
+
+## Planned Features
+
+The following features are planned to be added in due time:
+
+- [ ] Tests to make sure features work as intended.
+- [ ] Add multi-line editing.
+- [ ] Numbered list support.
+- [ ] Bold
+- [ ] Italic
+- [ ] Underline
+- [ ] Strike-through
+- [ ] Horizontal rule
