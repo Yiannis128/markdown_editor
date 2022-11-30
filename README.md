@@ -72,8 +72,9 @@ The following features are planned to be added in due time:
 - [ ] Tests to make sure features work as intended.
 - [ ] Add multi-line editing.
 - [ ] Numbered list support.
-- [ ] Bold
-- [ ] Italic
-- [ ] Underline
-- [ ] Strike-through
+- [ ] Bold, Italic, Underline, Strike-through
 - [ ] Horizontal rule
+
+The following items maybe added in the future, however, are not being worked on:
+- [ ] Fancy-view: Inserted markers in text view appear to preview them.
+- [ ] Hide Markdown Mode
