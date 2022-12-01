@@ -25,11 +25,9 @@ class _MarkdownEditorWidgetState extends State<MarkdownEditorWidget> {
     _controller = widget.controller ?? TextEditingController();
   }
 
-  void replaceText(int start, int end, String text) {
-    var newText = _controller.text.replaceRange(start, end, text);
+  void replaceText(String newText, TextSelection selection) {
     setState(() {
-      _controller.text = newText;
-      _controller.selection = TextSelection.collapsed(offset: start);
+      _controller.value = TextEditingValue(text: newText, selection: selection);
     });
 
     widget.onTextEdited?.call(newText);

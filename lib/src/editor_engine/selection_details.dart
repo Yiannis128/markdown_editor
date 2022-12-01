@@ -10,6 +10,7 @@ class SelectionDetails {
   late String text;
   late int start;
   late int end;
+  late String selectedText;
 
   /// before: The text before the selection point.
   late String before;
@@ -17,7 +18,7 @@ class SelectionDetails {
   /// after: The text after the selection point.
   late String after;
 
-  /// lineStart: Index describing point at which the selected line starts. 
+  /// lineStart: Index describing point at which the selected line starts.
   late int lineStart;
 
   /// lineEnd: Index describing point at which the selected line ends.
@@ -28,10 +29,8 @@ class SelectionDetails {
 
   SelectionDetails(this.controller);
 
-  /// # updateSelection
-  /// Updates the current selection object.
-  void updateSelection(TextSelection selection) {
-    controller.selection = selection;
+  bool get selectionCollapsed {
+    return selectedText.isEmpty;
   }
 
   /// # update
@@ -42,9 +41,12 @@ class SelectionDetails {
     text = controller.value.text;
     start = selection.start;
     end = selection.end;
+
     if (selection.isValid) {
+      selectedText = text.characters.getRange(start, end).toString();
       before = selection.textBefore(text);
       after = selection.textAfter(text);
+
       lineStart = before.lastIndexOf('\n') + 1;
       if (lineStart == -1) {
         lineStart = 0;
@@ -55,7 +57,7 @@ class SelectionDetails {
       } else {
         lineEnd = before.length + lineEnd;
       }
-      line = before.split('\n').last + after.split('\n').first;
+      line = before.split('\n').last + selectedText + after.split('\n').first;
     }
   }
 }

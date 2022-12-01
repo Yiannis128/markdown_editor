@@ -1,80 +1,91 @@
 import 'package:flutter/material.dart';
 
+import 'editor_engine/selection_details.dart';
+import 'editor_engine/text_edit_context.dart';
+import 'editor_engine/toggle_item.dart';
+
 class MarkdownEditorToolbarWidget extends StatefulWidget {
   final TextEditingController controller;
-  final void Function(int start, int end, String text)? replaceText;
-  const MarkdownEditorToolbarWidget(this.controller, this.replaceText, {Key? key})
+  final void Function(String, TextSelection)? replaceText;
+  const MarkdownEditorToolbarWidget(this.controller, this.replaceText,
+      {Key? key})
       : super(key: key);
 
   @override
-  State<MarkdownEditorToolbarWidget> createState() => _MarkdownEditorToolbarWidgetState();
+  State<MarkdownEditorToolbarWidget> createState() =>
+      _MarkdownEditorToolbarWidgetState();
 }
 
-class _MarkdownEditorToolbarWidgetState extends State<MarkdownEditorToolbarWidget> {
-  late final List<_ToggleItem> _items;
-  late final _SelectionDetails _selectionDetails;
+class _MarkdownEditorToolbarWidgetState
+    extends State<MarkdownEditorToolbarWidget> {
+  late final List<ToggleItem> _items;
+  late final SelectionDetails _selectionDetails;
 
-  late _ToggleItem h1, h2, h3, h4, b, i, u, s, ul, ol, hl;
+  late ToggleItem h1, h2, h3, h4, b, i, u, s, ul, ol, hl, v;
 
   @override
   void initState() {
     super.initState();
 
-    _selectionDetails = _SelectionDetails(widget.controller);
+    _selectionDetails = SelectionDetails(widget.controller);
     widget.controller.addListener(textUpdated);
 
     initToolbarButtons();
 
-    _items = [h1, h2, h3, h4, /*b, i, u, s,*/ ul/*, ol, hl*/];
+    _items = [h1, h2, h3, h4, /*b, i, u, s,*/ ul /*, ol, hl, v*/];
   }
 
   void initToolbarButtons() {
-    h1 = _HeaderMarkToggleItem(
+    h1 = HeaderMarkToggleItem(
       const Text("H1"),
       "# ",
       _selectionDetails,
       toggle: true,
     );
 
-    h2 = _HeaderMarkToggleItem(
+    h2 = HeaderMarkToggleItem(
       const Text("H2"),
       "## ",
       _selectionDetails,
       toggle: true,
     );
 
-    h3 = _HeaderMarkToggleItem(
+    h3 = HeaderMarkToggleItem(
       const Text("H3"),
       "### ",
       _selectionDetails,
       toggle: true,
     );
 
-    h4 = _HeaderMarkToggleItem(
+    h4 = HeaderMarkToggleItem(
       const Text("H4"),
       "#### ",
       _selectionDetails,
       toggle: true,
     );
 
-    b = _ToggleItem(const Icon(Icons.format_bold), toggle: true);
+    b = ToggleItem(const Icon(Icons.format_bold), toggle: true);
 
-    i = _ToggleItem(const Icon(Icons.format_italic), toggle: true);
+    i = ToggleItem(const Icon(Icons.format_italic), toggle: true);
 
-    u = _ToggleItem(const Icon(Icons.format_underline), toggle: true);
+    u = ToggleItem(const Icon(Icons.format_underline), toggle: true);
 
-    s = _ToggleItem(const Icon(Icons.format_strikethrough), toggle: true);
+    s = ToggleItem(const Icon(Icons.format_strikethrough), toggle: true);
 
-    ul = _HeaderMarkToggleItem(
+    ul = HeaderMarkToggleItem(
       const Icon(Icons.format_list_bulleted),
       "* ",
       _selectionDetails,
       toggle: true,
     );
 
-    ol = _ToggleItem(const Icon(Icons.format_list_numbered), toggle: true);
+    ol = ToggleItem(const Icon(Icons.format_list_numbered), toggle: true);
 
-    hl = _ToggleItem(const Icon(Icons.horizontal_rule), toggle: true);
+    hl = ToggleItem(const Icon(Icons.horizontal_rule), toggle: true);
+
+    /// TODO v is for view the markdown, this will be added in the future to
+    /// toggle between seeing the markdown and hiding it.
+    v = ToggleItem(const Icon(Icons.view_headline), toggle: true);
   }
 
   void textUpdated() {
@@ -123,6 +134,7 @@ class _MarkdownEditorToolbarWidgetState extends State<MarkdownEditorToolbarWidge
             break;
         }
       } else {
+        // If no header mark, then disable all header mark items.
         setState(() {
           setEnabledHeader();
         });
@@ -177,6 +189,33 @@ class _MarkdownEditorToolbarWidgetState extends State<MarkdownEditorToolbarWidge
     return null;
   }
 
+  void toggleButtonPressed(int index, List<ToggleItem> rowItems) {
+    // Get the ToggleItem widget that is pressed.
+    var itemWidget = rowItems[index];
+
+    // Apply formatting to get the new line after formatting is done.
+    List<TextEdit> edits = itemWidget.use();
+
+    // Update toggle item state.
+    setState(() {
+      rowItems[index] = itemWidget;
+    });
+
+    final editContext = TextEditContext(_selectionDetails);
+    editContext.addEdits(edits);
+
+    // Call replace text to propagate changes to InputField widget.
+    if (editContext.stack.isNotEmpty) {
+      var newText = editContext.apply(widget.controller.text);
+
+      var newTextSelection = editContext.getNewTextSelection()!;
+      widget.replaceText?.call(newText, newTextSelection);
+    }
+
+    // Update the selection details after calling replaceText.
+    _selectionDetails.update();
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -203,29 +242,8 @@ class _MarkdownEditorToolbarWidgetState extends State<MarkdownEditorToolbarWidge
             isSelected:
                 rowItems.map((e) => e.isSelected).toList(growable: false),
             children: rowItems.map((e) => e.body).toList(growable: false),
-            // ToggleButton action.
             onPressed: (index) {
-              var item = rowItems[index];
-
-              // Apply formatting to get newLine after formatting is done.
-              _TextEdit? edit = item.use();
-
-              // Call replace text to propagate changes to InputField widget.
-              if (edit != null) {
-                widget.replaceText?.call(
-                  edit.startIndex,
-                  edit.endIndex,
-                  edit.newText,
-                );
-                _selectionDetails.updateSelection(edit.selection);
-              }
-
-              // Update toggle item state.
-              setState(() {
-                rowItems[index] = item;
-              });
-
-              _selectionDetails.update();
+              toggleButtonPressed(index, rowItems);
             },
           ));
         }
@@ -236,135 +254,5 @@ class _MarkdownEditorToolbarWidgetState extends State<MarkdownEditorToolbarWidge
         );
       },
     );
-  }
-}
-
-class _TextEdit {
-  final String newText;
-  final int startIndex;
-  final int endIndex;
-  final TextSelection selection;
-  _TextEdit(this.newText, this.startIndex, this.endIndex, this.selection);
-}
-
-/// # _ToggleItem
-///
-/// Class that represents an item on the toolbox at the top of the editor.
-class _ToggleItem {
-  Key? key;
-
-  /// _toggle: If the item can be toggled.
-  final bool _toggle;
-  final Widget body;
-  bool isSelected = false;
-  _TextEdit? Function(bool)? onUse;
-
-  _ToggleItem(this.body, {bool toggle = false, this.onUse}) : _toggle = toggle {
-    key = body.key;
-  }
-
-  _TextEdit? use() {
-    if (_toggle) {
-      isSelected = !isSelected;
-    }
-    return onUse?.call(isSelected);
-  }
-}
-
-class _HeaderMarkToggleItem extends _ToggleItem {
-  final _SelectionDetails _selectionDetails;
-  final String mark;
-
-  _HeaderMarkToggleItem(
-    Widget body,
-    this.mark,
-    this._selectionDetails, {
-    bool toggle = false,
-  }) : super(
-          body,
-          toggle: toggle,
-        );
-
-  @override
-  _TextEdit? Function(bool select)? get onUse => (select) {
-        return handleHeaderMark(mark, select);
-      };
-
-  _TextEdit handleHeaderMark(String mark, bool select) {
-    var line = _selectionDetails.line;
-    var selOffset = select ? mark.length : -mark.length;
-    var selection = TextSelection.collapsed(
-      offset: _selectionDetails.selection.baseOffset + selOffset,
-    );
-    if (select) {
-      return _TextEdit(
-        mark + line,
-        _selectionDetails.lineStart,
-        _selectionDetails.lineEnd,
-        selection,
-      );
-    } else {
-      return _TextEdit(
-        line.replaceFirst(mark, ""),
-        _selectionDetails.lineStart,
-        _selectionDetails.lineEnd,
-        selection,
-      );
-    }
-  }
-}
-
-/// # _SelectionDetails
-///
-/// Contains useful information regarding the currently selected text in
-/// the text field that the EditorBarWidget is interacting with.
-class _SelectionDetails {
-  late TextEditingController controller;
-  late TextSelection selection;
-  late String text;
-  late int start;
-  late int end;
-
-  /// before: The text before the selection point.
-  late String before;
-
-  /// after: The text after the selection point.
-  late String after;
-
-  /// lineStart: Index describing point at which the selected line starts.
-  late int lineStart;
-
-  /// lineEnd: Index describing point at which the selected line ends.
-  late int lineEnd;
-
-  /// line: The line at which the cursor is currently on.
-  late String line;
-
-  _SelectionDetails(this.controller);
-
-  void updateSelection(TextSelection selection) {
-    controller.selection = selection;
-  }
-
-  void update() {
-    selection = controller.selection;
-    text = controller.value.text;
-    start = selection.start;
-    end = selection.end;
-    if (selection.isValid) {
-      before = selection.textBefore(text);
-      after = selection.textAfter(text);
-      lineStart = before.lastIndexOf('\n') + 1;
-      if (lineStart == -1) {
-        lineStart = 0;
-      }
-      lineEnd = after.indexOf('\n');
-      if (lineEnd == -1) {
-        lineEnd = text.length;
-      } else {
-        lineEnd = before.length + lineEnd;
-      }
-      line = before.split('\n').last + after.split('\n').first;
-    }
   }
 }
