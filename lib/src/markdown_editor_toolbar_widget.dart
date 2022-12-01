@@ -21,7 +21,7 @@ class _MarkdownEditorToolbarWidgetState
   late final List<ToggleItem> _items;
   late final SelectionDetails _selectionDetails;
 
-  late ToggleItem h1, h2, h3, h4, b, i, u, s, ul, ol, hl, v;
+  late ToggleItem h1, h2, h3, h4, b, i, s, ul, ol, hl;
 
   @override
   void initState() {
@@ -32,7 +32,7 @@ class _MarkdownEditorToolbarWidgetState
 
     initToolbarButtons();
 
-    _items = [h1, h2, h3, h4, /*b, i, u, s,*/ ul /*, ol, hl, v*/];
+    _items = [h1, h2, h3, h4, /*b, i, s,*/ ul /*, ol, hl*/];
   }
 
   void initToolbarButtons() {
@@ -64,13 +64,26 @@ class _MarkdownEditorToolbarWidgetState
       toggle: true,
     );
 
-    b = ToggleItem(const Icon(Icons.format_bold), toggle: true);
+    b = RangeMarkToggleItem(
+      const Icon(Icons.format_bold),
+      "**",
+      _selectionDetails,
+      toggle: true,
+    );
 
-    i = ToggleItem(const Icon(Icons.format_italic), toggle: true);
+    i = RangeMarkToggleItem(
+      const Icon(Icons.format_italic),
+      "__",
+      _selectionDetails,
+      toggle: true,
+    );
 
-    u = ToggleItem(const Icon(Icons.format_underline), toggle: true);
-
-    s = ToggleItem(const Icon(Icons.format_strikethrough), toggle: true);
+    s = RangeMarkToggleItem(
+      const Icon(Icons.format_strikethrough),
+      "--",
+      _selectionDetails,
+      toggle: true,
+    );
 
     ul = HeaderMarkToggleItem(
       const Icon(Icons.format_list_bulleted),
@@ -82,10 +95,6 @@ class _MarkdownEditorToolbarWidgetState
     ol = ToggleItem(const Icon(Icons.format_list_numbered), toggle: true);
 
     hl = ToggleItem(const Icon(Icons.horizontal_rule), toggle: true);
-
-    /// TODO v is for view the markdown, this will be added in the future to
-    /// toggle between seeing the markdown and hiding it.
-    v = ToggleItem(const Icon(Icons.view_headline), toggle: true);
   }
 
   void textUpdated() {

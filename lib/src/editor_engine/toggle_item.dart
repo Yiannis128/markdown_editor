@@ -65,17 +65,24 @@ class HeaderMarkToggleItem extends ToggleItem {
             selectionDetails.lineEnd,
             mark.length,
             mark.length,
-          )
+          ),
         ];
       } else {
+        // Account for cursor moving to previous line if header is removed if
+        // it's at the start of the line.
+        // Check if cursor is in the remove region and set it to start of line.
+        var offset =
+            selectionDetails.start - mark.length < selectionDetails.lineStart
+                ? -selectionDetails.start + selectionDetails.lineStart
+                : -mark.length;
         return [
           TextEdit(
             line.replaceFirst(mark, ""),
             selectionDetails.lineStart,
             selectionDetails.lineEnd,
-            -mark.length,
-            -mark.length
-          )
+            offset,
+            offset,
+          ),
         ];
       }
     } else {
@@ -90,7 +97,18 @@ class HeaderMarkToggleItem extends ToggleItem {
         }
       }
 
-      var selectionOffset = select ? mark.length : - mark.length;
+      int selectionOffset;
+      if (select) {
+        selectionOffset = mark.length;
+      } else {
+        // Account for cursor moving to previous line if header is removed if
+        // it's at the start of the line.
+        // Check if cursor is in the remove region and set it to start of line.
+        selectionOffset =
+            selectionDetails.start - mark.length < selectionDetails.lineStart
+                ? -selectionDetails.start + selectionDetails.lineStart
+                : -mark.length;
+      }
 
       for (var i = 0; i < newLineLocs.length; i++) {
         var newLineLoc = newLineLocs[i];
@@ -113,6 +131,26 @@ class HeaderMarkToggleItem extends ToggleItem {
   }
 }
 
-// class RangeMarkToggleItem extends ToggleItem { 
+class RangeMarkToggleItem extends ToggleItem { 
+  final SelectionDetails selectionDetails;
+  final String mark;
 
-// }
+  RangeMarkToggleItem(
+    Widget body,
+    this.mark,
+    this.selectionDetails, {
+    bool toggle = false,
+  }) : super(
+          body,
+          toggle: toggle,
+        );
+
+  @override
+  List<TextEdit> Function(bool select)? get onUse => (select) {
+        return handleRangeMark(select);
+      };
+
+  List<TextEdit> handleRangeMark(bool select) {
+    return [];
+  }
+}
