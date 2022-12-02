@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:markdown_editor/src/editor_engine/markdown_parser.dart';
 
+import 'editor_engine/header_mark_toggle_item.dart';
+import 'editor_engine/range_mark_toggle_item.dart';
 import 'editor_engine/selection_details.dart';
 import 'editor_engine/text_edit_context.dart';
 import 'editor_engine/toggle_item.dart';
@@ -32,7 +35,7 @@ class _MarkdownEditorToolbarWidgetState
 
     initToolbarButtons();
 
-    _items = [h1, h2, h3, h4, /*b, i, s,*/ ul /*, ol, hl*/];
+    _items = [h1, h2, h3, h4, b, i, s, ul, /* ol,*/ hl];
   }
 
   void initToolbarButtons() {
@@ -80,7 +83,7 @@ class _MarkdownEditorToolbarWidgetState
 
     s = RangeMarkToggleItem(
       const Icon(Icons.format_strikethrough),
-      "--",
+      "~~",
       _selectionDetails,
       toggle: true,
     );
@@ -94,7 +97,13 @@ class _MarkdownEditorToolbarWidgetState
 
     ol = ToggleItem(const Icon(Icons.format_list_numbered), toggle: true);
 
-    hl = ToggleItem(const Icon(Icons.horizontal_rule), toggle: true);
+    hl = HeaderMarkToggleItem(
+      const Icon(Icons.horizontal_rule),
+      "---\n",
+      _selectionDetails,
+      // This class does not remove this mark properly.
+      toggle: false,
+    );
   }
 
   void textUpdated() {
@@ -107,7 +116,7 @@ class _MarkdownEditorToolbarWidgetState
     if (start == end) {
       // Detect all marks.
       // Start with header marks.
-      String? hMark = hasHeaderMark(line);
+      String? hMark = MarkdownParser().hasHeaderMark(line);
       if (hMark != null) {
         // Activate all the appropriate h mark.
         switch (hMark) {
@@ -136,6 +145,11 @@ class _MarkdownEditorToolbarWidgetState
               setEnabledHeader(ul: true);
             });
             break;
+          case "---":
+            setState(() {
+              setEnabledHeader(hl: true);
+            });
+            break;
           case "1. ":
             setState(() {
               setEnabledHeader(ol: true);
@@ -148,6 +162,31 @@ class _MarkdownEditorToolbarWidgetState
           setEnabledHeader();
         });
       }
+    } else {
+      // Range selections
+      var rangeMarks = MarkdownParser().hasRangeMark(
+        _selectionDetails.text,
+        _selectionDetails.selection,
+      );
+
+      bool b = false, i = false, s = false;
+      for (var mark in rangeMarks) {
+        switch (mark.symbol) {
+          case "**":
+            b = true;
+            break;
+          case "__":
+            i = true;
+            break;
+          case "~~":
+            s = true;
+            break;
+        }
+      }
+
+      setState(() {
+        setEnabledHeader(b: b, i: i, s: s);
+      });
     }
   }
 
@@ -156,46 +195,23 @@ class _MarkdownEditorToolbarWidgetState
     h2 = false,
     h3 = false,
     h4 = false,
+    b = false,
+    i = false,
+    s = false,
     ul = false,
     ol = false,
+    hl = false,
   }) {
     this.h1.isSelected = h1;
     this.h2.isSelected = h2;
     this.h3.isSelected = h3;
     this.h4.isSelected = h4;
+    this.b.isSelected = b;
+    this.i.isSelected = i;
+    this.s.isSelected = s;
     this.ul.isSelected = ul;
     this.ol.isSelected = ol;
-  }
-
-  /// # hasHeaderMark
-  ///
-  /// Detects if the text `line` provided has a header mark. A header mark
-  /// counts as any of the # marks, along with the list marks.
-  String? hasHeaderMark(String line) {
-    var start = line.trimLeft();
-    if (start.startsWith("#### ")) {
-      return "#### ";
-    } else if (start.startsWith("### ")) {
-      return "### ";
-    } else if (start.startsWith("## ")) {
-      return "## ";
-    } else if (start.startsWith("# ")) {
-      return "# ";
-    } else if (start.startsWith("* ")) {
-      return "* ";
-    } else {
-      /// Check for ordered list. Start by separating the number.
-      /// Find the . and see if the string left is a number.
-      var pointIndex = start.indexOf(".");
-      if (pointIndex != -1) {
-        var numberStr = start.characters.getRange(0, pointIndex).toString();
-        var number = int.tryParse(numberStr);
-        if (number != null) {
-          return "1. ";
-        }
-      }
-    }
-    return null;
+    this.hl.isSelected = hl;
   }
 
   void toggleButtonPressed(int index, List<ToggleItem> rowItems) {
