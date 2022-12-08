@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'selection_details.dart';
-import 'text_edit_context.dart';
+import '../selection_details.dart';
+import '../text_edit_context.dart';
 import 'toggle_item.dart';
 
 /// # HeaderMarkToggleitem

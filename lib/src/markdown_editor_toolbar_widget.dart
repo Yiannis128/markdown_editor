@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:markdown_editor/src/editor_engine/toggle_items/block_quote_toggle_item.dart';
 import 'package:markdown_editor/src/editor_engine/markdown_parser.dart';
 
-import 'editor_engine/header_mark_toggle_item.dart';
-import 'editor_engine/range_mark_toggle_item.dart';
+import 'editor_engine/toggle_items/header_mark_toggle_item.dart';
+import 'editor_engine/toggle_items/range_mark_toggle_item.dart';
 import 'editor_engine/selection_details.dart';
 import 'editor_engine/text_edit_context.dart';
-import 'editor_engine/toggle_item.dart';
+import 'editor_engine/toggle_items/toggle_item.dart';
 
 class MarkdownEditorToolbarWidget extends StatefulWidget {
   final TextEditingController controller;
@@ -24,7 +25,7 @@ class _MarkdownEditorToolbarWidgetState
   late final List<ToggleItem> _items;
   late final SelectionDetails _selectionDetails;
 
-  late ToggleItem h1, h2, h3, h4, b, i, s, ul, ol, hl;
+  late ToggleItem h1, h2, h3, h4, b, i, s, ul, ol, hl, img, bq, code;
 
   @override
   void initState() {
@@ -35,7 +36,7 @@ class _MarkdownEditorToolbarWidgetState
 
     initToolbarButtons();
 
-    _items = [h1, h2, h3, h4, b, i, s, ul, /* ol,*/ hl];
+    _items = [h1, h2, h3, h4, b, i, s, ul, /* ol,*/ hl, img, bq, code];
   }
 
   void initToolbarButtons() {
@@ -102,8 +103,19 @@ class _MarkdownEditorToolbarWidgetState
       "---\n",
       _selectionDetails,
       // This class does not remove this mark properly.
-      toggle: false,
+      toggle: true,
     );
+
+    img = ToggleItem(const Icon(Icons.image), toggle: false);
+
+    bq = BlockQuoteToggleItem(
+      const Icon(Icons.format_quote),
+      "> ",
+      _selectionDetails,
+      toggle: true,
+    );
+
+    code = ToggleItem(const Icon(Icons.code), toggle: false);
   }
 
   void textUpdated() {
@@ -148,6 +160,11 @@ class _MarkdownEditorToolbarWidgetState
           case "---":
             setState(() {
               setEnabledHeader(hl: true);
+            });
+            break;
+          case "> ":
+            setState(() {
+              setEnabledHeader(bq: true);
             });
             break;
           case "1. ":
@@ -201,6 +218,9 @@ class _MarkdownEditorToolbarWidgetState
     ul = false,
     ol = false,
     hl = false,
+    img = false,
+    bq = false,
+    code = false,
   }) {
     this.h1.isSelected = h1;
     this.h2.isSelected = h2;
@@ -212,6 +232,9 @@ class _MarkdownEditorToolbarWidgetState
     this.ul.isSelected = ul;
     this.ol.isSelected = ol;
     this.hl.isSelected = hl;
+    this.img.isSelected = img;
+    this.bq.isSelected = bq;
+    this.code.isSelected = code;
   }
 
   void toggleButtonPressed(int index, List<ToggleItem> rowItems) {

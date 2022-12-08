@@ -26,6 +26,8 @@ class MarkdownParser {
     } else if (trimmedStart.length >= 3 &&
         trimmedStart.replaceAll("-", "") == "") {
       return "---";
+    } else if (trimmedStart.startsWith(">")) {
+      return "> ";
     } else if (start.startsWith("* ")) {
       return "* ";
     } else {
@@ -43,10 +45,13 @@ class MarkdownParser {
     return null;
   }
 
-  List _getSelectedParagraphs(String text, TextSelection selection) {
+  List getSelectedParagraphs(String text, TextSelection selection) {
+    var start = selection.start;
+    var end = selection.end;
+    
     // Split text by double lines since that's what cuts of range marks.
     var textParagraphs = text.split("\n\n");
-
+    // FIXME: Not detecting double new line in some instances.
     // Find out which paragraphs the selection is inside, and remove others. /
     // This is the accummulated paragraph length used for calculating if
     // selection / is inside specific paragraph.
@@ -55,8 +60,6 @@ class MarkdownParser {
     for (var index = 0; index < textParagraphs.length; index++) {
       var paragraph = textParagraphs[index];
 
-      var start = selection.start;
-      var end = selection.end;
       var paragraphEnd = paragraphStart + paragraph.length;
 
       // Check if start of paragraph has been trimmed, if not then do so.
@@ -71,7 +74,7 @@ class MarkdownParser {
       }
 
       // Trim end.
-      if (end >= paragraphStart && end < paragraphEnd) {
+      if (end >= paragraphStart && end <= paragraphEnd) {
         textParagraphs = textParagraphs.sublist(0, index + 1);
 
         // Breaking here will also not update paragraphStart meaning that the
@@ -80,6 +83,7 @@ class MarkdownParser {
       }
 
       // + 2 to account for the \n\n that got split out.
+      // TODO account for variable split.
       paragraphStart = paragraphEnd + 2;
     }
 
@@ -105,9 +109,16 @@ class MarkdownParser {
       return [];
     }
 
-    var textParagraphsResult = _getSelectedParagraphs(text, selection);
+    var textParagraphsResult = getSelectedParagraphs(text, selection);
     List<String> textParagraphs = textParagraphsResult[0];
     int paragraphStart = textParagraphsResult[1];
+
+    print("\n\n");
+    print("Selection start: ${selection.start}");
+    print("Selection end: ${selection.end}");
+    print("Sel length: ${selection.end - selection.start}");
+    print("pStart: $paragraphStart");
+    print("\n\n");
 
     // Map of range symbol and location.
     final symbolsFound = <_RangeSymbol>[];
@@ -132,17 +143,6 @@ class MarkdownParser {
         }
       }
     }
-
-    //   print("");
-    //   print("");
-    //   print("Selection Start: ${selection.start}");
-    //   print("Selection End: ${selection.end}");
-    //   print("");
-    // for(var s in symbolsFound) {
-    //   print(s.textOffset);
-    // }
-    //   print("");
-    //   print("");
 
     // Use a stack to determine which are valid symbols.
     final result = <RangeSymbol>[];
@@ -175,9 +175,9 @@ class MarkdownParser {
           // This check is for the scenario where the next symbol in the inner
           // loop might also match, and be within range, so we wanna skip to
           // the next start symbol. Example: **AAA BBB** AA** - This will cause
-          // AAA BBB** AA to be selected, this if resolves that. 
+          // AAA BBB** AA to be selected, this if resolves that.
           if (symbol.symbol == nextSymbol.symbol) {
-            symbolIndex++;  
+            symbolIndex++;
             break;
           }
         }

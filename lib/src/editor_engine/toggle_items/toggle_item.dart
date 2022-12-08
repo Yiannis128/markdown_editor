@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'selection_details.dart';
-import 'text_edit_context.dart';
+import '../text_edit_context.dart';
 
 /// # _ToggleItem
 /// Class that represents an item on the toolbox at the top of the editor.
@@ -23,12 +22,13 @@ class ToggleItem {
   }
 
   List<TextEdit> use() {
+    List<TextEdit>? result;
     if (_toggle) {
       isSelected = !isSelected;
+      result = onUse?.call(isSelected);
+    } else {
+      result = onUse?.call(true);
     }
-    var result = onUse?.call(isSelected);
     return result ?? [];
   }
 }
-
-
