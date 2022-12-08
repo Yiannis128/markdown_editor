@@ -13,32 +13,40 @@ class MarkdownParser {
   /// Detects if the text `line` provided has a header mark. A header mark
   /// counts as any of the # marks, along with the list marks.
   String? hasHeaderMark(String line) {
-    var start = line.trimLeft();
-    var trimmedStart = start.trim();
-    if (start.startsWith("#### ")) {
+    var trimmedLine = line.trim();
+    if (line.startsWith("#### ")) {
       return "#### ";
-    } else if (start.startsWith("### ")) {
+    } else if (line.startsWith("### ")) {
       return "### ";
-    } else if (start.startsWith("## ")) {
+    } else if (line.startsWith("## ")) {
       return "## ";
-    } else if (start.startsWith("# ")) {
+    } else if (line.startsWith("# ")) {
       return "# ";
-    } else if (trimmedStart.length >= 3 &&
-        trimmedStart.replaceAll("-", "") == "") {
+    } else if (line.length >= 3 &&
+        line.startsWith("---") &&
+        trimmedLine.replaceAll("-", "") == "") {
       return "---";
-    } else if (trimmedStart.startsWith(">")) {
+    } else if (trimmedLine.startsWith(">")) {
       return "> ";
-    } else if (start.startsWith("* ")) {
+    } else if (line.startsWith("* ")) {
       return "* ";
     } else {
+      /// Ordered list
       /// Check for ordered list. Start by separating the number.
       /// Find the . and see if the string left is a number.
-      var pointIndex = start.indexOf(".");
+      var pointIndex = line.indexOf(".");
       if (pointIndex != -1) {
-        var numberStr = start.characters.getRange(0, pointIndex).toString();
-        var number = int.tryParse(numberStr);
-        if (number != null) {
-          return "1. ";
+        // Check for space after point.
+        if (pointIndex + 1 < line.length &&
+            line.characters.elementAt(pointIndex + 1) == " ") {
+          var numberStr = line.characters.getRange(0, pointIndex).toString();
+          // Check if whitespace.
+          if (numberStr.trimLeft() == numberStr) {
+            var number = int.tryParse(numberStr);
+            if (number != null) {
+              return "1. ";
+            }
+          }
         }
       }
     }
@@ -48,7 +56,7 @@ class MarkdownParser {
   List getSelectedParagraphs(String text, TextSelection selection) {
     var start = selection.start;
     var end = selection.end;
-    
+
     // Split text by double lines since that's what cuts of range marks.
     var textParagraphs = text.split("\n\n");
     // FIXME: Not detecting double new line in some instances.
