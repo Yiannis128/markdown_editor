@@ -6,10 +6,11 @@ import 'package:flutter/material.dart';
 /// the text field that the EditorBarWidget is interacting with.
 class SelectionDetails {
   late TextEditingController controller;
-  late TextSelection selection;
-  late String text;
-  late int start;
-  late int end;
+  TextSelection get selection => controller.selection;
+  String get text => controller.value.text;
+  int get start => selection.start;
+  int get end => selection.end;
+  
   late String selectedText;
 
   /// before: The text before the selection point.
@@ -37,11 +38,6 @@ class SelectionDetails {
   /// Updates the selection details of this object, this should be called after
   /// `updateSelection`.
   void update() {
-    selection = controller.selection;
-    text = controller.value.text;
-    start = selection.start;
-    end = selection.end;
-
     if (selection.isValid) {
       selectedText = text.characters.getRange(start, end).toString();
       before = selection.textBefore(text);
@@ -55,9 +51,65 @@ class SelectionDetails {
       if (lineEnd == -1) {
         lineEnd = text.length;
       } else {
-        lineEnd = before.length + lineEnd;
+        lineEnd = end + lineEnd;
       }
       line = before.split('\n').last + selectedText + after.split('\n').first;
     }
   }
+  
+  @override
+  String toString() {
+    String s = """
+Selection:
+  - start:     $start
+  - end:       $end
+  - lineStart: $lineStart
+  - lineEnd:   $lineEnd
+
+  - line
+  ==============
+  $line
+  ==============
+
+  - before
+  ==============
+  $before
+  ==============
+
+  - after
+  ==============
+  $after
+  ==============
+
+  - selectedText
+  ==============
+  $selectedText
+  ==============
+""";
+    return s;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! SelectionDetails) {
+      return false;
+    }
+    return controller == other.controller &&
+        selectedText == other.selectedText &&
+        before == other.before &&
+        after == other.after &&
+        lineStart == other.lineStart &&
+        lineEnd == other.lineEnd &&
+        line == other.line;
+  }
+
+  @override
+  int get hashCode =>
+      controller.hashCode *
+      selectedText.hashCode *
+      before.hashCode *
+      after.hashCode *
+      lineStart.hashCode *
+      lineEnd.hashCode *
+      line.hashCode;
 }
