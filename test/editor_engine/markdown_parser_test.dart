@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:markdown_editor/src/editor_engine/markdown_parser.dart';
 
+import '../test_case.dart';
+
 const String _testText1 = """AAAAA BBBBB CCCCC DDDDD
 AAAAA BBBBB CCCCC DDDDD
 
@@ -184,8 +186,8 @@ void main() {
   });
 
   group("MarkdownParser getSelectedParagraphs:", () {
-    List<_Test> tests = [
-      _Test(
+    List<TestCase> tests = [
+      TestCase(
         title: "Cursor at start of text",
         test: const TextSelection(baseOffset: 0, extentOffset: 0),
         expected: [
@@ -193,7 +195,7 @@ void main() {
           <String>["AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD"],
         ],
       ),
-      _Test(
+      TestCase(
         title: "Cursor at end of text",
         test: const TextSelection(
             baseOffset: _testText1.length, extentOffset: _testText1.length),
@@ -202,7 +204,7 @@ void main() {
           <String>[""],
         ],
       ),
-      _Test(
+      TestCase(
         title: "Cursor before a paragraph end (before a \\n\\n)",
         test: const TextSelection(baseOffset: 47, extentOffset: 47),
         expected: [
@@ -210,7 +212,7 @@ void main() {
           <String>["AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD"],
         ],
       ),
-      _Test(
+      TestCase(
         title: "Multi paragraph selection from start",
         test: const TextSelection(baseOffset: 0, extentOffset: 50),
         expected: [
@@ -221,7 +223,7 @@ void main() {
           ],
         ],
       ),
-      _Test(
+      TestCase(
         title: "Multi paragraph selection from second paragraph",
         test: const TextSelection(
           baseOffset: 50,
@@ -235,7 +237,7 @@ void main() {
           ],
         ],
       ),
-      _Test(
+      TestCase(
         title: "Multi paragraph selection ending at end of text",
         test: const TextSelection(
             baseOffset: 50, extentOffset: _testText1.length),
@@ -248,7 +250,7 @@ void main() {
           ],
         ],
       ),
-      _Test(
+      TestCase(
         title: "All text selected",
         test:
             const TextSelection(baseOffset: 0, extentOffset: _testText1.length),
@@ -262,7 +264,7 @@ void main() {
           ],
         ],
       ),
-      _Test(
+      TestCase(
         title: "End single paragraph selection on an empty line",
         test: const TextSelection(baseOffset: 50, extentOffset: 121),
         expected: [
@@ -272,7 +274,7 @@ void main() {
           ],
         ],
       ),
-      _Test(
+      TestCase(
         title: "End multi paragraph selection on an empty line",
         test: const TextSelection(baseOffset: 10, extentOffset: 121),
         expected: [
@@ -311,13 +313,13 @@ void main() {
   });
 
   group("MarkdownParser hasRangeMark: 1", () {
-    List<_Test> tests = [
-      _Test(
+    List<TestCase> tests = [
+      TestCase(
         title: "Select from start same paragraph",
         test: const TextSelection(baseOffset: 0, extentOffset: 15),
         expected: [],
       ),
-      _Test(
+      TestCase(
         title: "Select bold range marker",
         test: const TextSelection(baseOffset: 21, extentOffset: 27),
         expected: [
@@ -327,7 +329,7 @@ void main() {
           ),
         ],
       ),
-      _Test(
+      TestCase(
         title: "Select italics range marker",
         test: const TextSelection(baseOffset: 81, extentOffset: 84),
         expected: [
@@ -337,7 +339,7 @@ void main() {
           ),
         ],
       ),
-      _Test(
+      TestCase(
         title: "Select strike-through range marker",
         test: const TextSelection(baseOffset: 70, extentOffset: 73),
         expected: [
@@ -347,7 +349,7 @@ void main() {
           ),
         ],
       ),
-      _Test(
+      TestCase(
         title: "Select nested italics range marker",
         test: const TextSelection(baseOffset: 48, extentOffset: 51),
         expected: [
@@ -361,7 +363,7 @@ void main() {
           ),
         ],
       ),
-      _Test(
+      TestCase(
         title: "Select bold range marker with italics nested inside",
         test: const TextSelection(baseOffset: 39, extentOffset: 64),
         expected: [
@@ -371,7 +373,7 @@ void main() {
           ),
         ],
       ),
-      _Test(
+      TestCase(
         title: "Not full selection of range symbol",
         test: const TextSelection(baseOffset: 22, extentOffset: 25),
         expected: [
@@ -399,8 +401,8 @@ void main() {
   });
 
   group("MarkdownParser hasRangeMark: 2", () {
-    List<_Test> tests = [
-      _Test(
+    List<TestCase> tests = [
+      TestCase(
         title:
             "Select bold range marker with single italic range marker inside",
         test: const TextSelection(baseOffset: 5, extentOffset: 15),
@@ -411,7 +413,7 @@ void main() {
           ),
         ],
       ),
-      _Test(
+      TestCase(
         title:
             "Select bold range marker with single italic range marker inside and other outside",
         test: const TextSelection(baseOffset: 26, extentOffset: 35),
@@ -440,8 +442,8 @@ void main() {
   });
 
   group("MarkdownParser hasRangeMark: 3", () {
-    List<_Test> tests = [
-      _Test(
+    List<TestCase> tests = [
+      TestCase(
         title: "Multi paragraph selection",
         test: const TextSelection(baseOffset: 5, extentOffset: 28),
         expected: [],
@@ -462,11 +464,4 @@ void main() {
       });
     }
   });
-}
-
-class _Test {
-  final String title;
-  final dynamic test;
-  final dynamic expected;
-  _Test({required this.title, required this.test, required this.expected});
 }
