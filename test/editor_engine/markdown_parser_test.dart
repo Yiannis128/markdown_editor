@@ -13,6 +13,29 @@ AAAAA BBBBB CCCCC DDDDD
 
 """;
 
+const String _testText2 = """AAAAABBBBB
+A__AABBB**
+AAAAA**BBB
+
+AAA**BBBBB
+A__AAB__BB
+AAAAABBB**
+
+~~AAA~~BBB
+__AAA__BBB
+""";
+
+const String _testText3 = """AAA**BBBBB
+A__A**BBBB
+
+A**AAB__BB
+A**AA__BBB""";
+
+const String _testText4 = """AAA**BBBBB
+A__AABBBBB
+
+AAAAA**BBB""";
+
 void main() {
   group("MarkdownParser hasHeaderMark: other", () {
     const List<String> headerMarkTestText = <String>[
@@ -287,7 +310,158 @@ void main() {
     }
   });
 
-  group("MarkdownParser hasRangeMark", () {});
+  group("MarkdownParser hasRangeMark: 1", () {
+    List<_Test> tests = [
+      _Test(
+        title: "Select from start same paragraph",
+        test: const TextSelection(baseOffset: 0, extentOffset: 15),
+        expected: [],
+      ),
+      _Test(
+        title: "Select bold range marker",
+        test: const TextSelection(baseOffset: 21, extentOffset: 27),
+        expected: [
+          RangeSymbol(
+            "**",
+            const TextSelection(baseOffset: 21, extentOffset: 27),
+          ),
+        ],
+      ),
+      _Test(
+        title: "Select italics range marker",
+        test: const TextSelection(baseOffset: 81, extentOffset: 84),
+        expected: [
+          RangeSymbol(
+            "__",
+            const TextSelection(baseOffset: 81, extentOffset: 84),
+          ),
+        ],
+      ),
+      _Test(
+        title: "Select strike-through range marker",
+        test: const TextSelection(baseOffset: 70, extentOffset: 73),
+        expected: [
+          RangeSymbol(
+            "~~",
+            const TextSelection(baseOffset: 70, extentOffset: 73),
+          ),
+        ],
+      ),
+      _Test(
+        title: "Select nested italics range marker",
+        test: const TextSelection(baseOffset: 48, extentOffset: 51),
+        expected: [
+          RangeSymbol(
+            "**",
+            const TextSelection(baseOffset: 39, extentOffset: 64),
+          ),
+          RangeSymbol(
+            "__",
+            const TextSelection(baseOffset: 48, extentOffset: 51),
+          ),
+        ],
+      ),
+      _Test(
+        title: "Select bold range marker with italics nested inside",
+        test: const TextSelection(baseOffset: 39, extentOffset: 64),
+        expected: [
+          RangeSymbol(
+            "**",
+            const TextSelection(baseOffset: 39, extentOffset: 64),
+          ),
+        ],
+      ),
+      _Test(
+        title: "Not full selection of range symbol",
+        test: const TextSelection(baseOffset: 22, extentOffset: 25),
+        expected: [
+          RangeSymbol(
+            "**",
+            const TextSelection(baseOffset: 21, extentOffset: 27),
+          ),
+        ],
+      ),
+    ];
+
+    for (var i = 0; i < tests.length; i++) {
+      var t = tests[i];
+
+      var title = t.title;
+      var selection = t.test;
+      var expected = t.expected;
+
+      test(title, () {
+        var results = MarkdownParser().hasRangeMark(_testText2, selection);
+
+        expect(results, expected);
+      });
+    }
+  });
+
+  group("MarkdownParser hasRangeMark: 2", () {
+    List<_Test> tests = [
+      _Test(
+        title:
+            "Select bold range marker with single italic range marker inside",
+        test: const TextSelection(baseOffset: 5, extentOffset: 15),
+        expected: [
+          RangeSymbol(
+            "**",
+            const TextSelection(baseOffset: 5, extentOffset: 15),
+          ),
+        ],
+      ),
+      _Test(
+        title:
+            "Select bold range marker with single italic range marker inside and other outside",
+        test: const TextSelection(baseOffset: 26, extentOffset: 35),
+        expected: [
+          RangeSymbol(
+            "**",
+            const TextSelection(baseOffset: 26, extentOffset: 35),
+          )
+        ],
+      ),
+    ];
+
+    for (var i = 0; i < tests.length; i++) {
+      var t = tests[i];
+
+      var title = t.title;
+      var selection = t.test;
+      var expected = t.expected;
+
+      test(title, () {
+        var results = MarkdownParser().hasRangeMark(_testText3, selection);
+
+        expect(results, expected);
+      });
+    }
+  });
+
+  group("MarkdownParser hasRangeMark: 3", () {
+    List<_Test> tests = [
+      _Test(
+        title: "Multi paragraph selection",
+        test: const TextSelection(baseOffset: 5, extentOffset: 28),
+        expected: [],
+      ),
+    ];
+
+    for (var i = 0; i < tests.length; i++) {
+      var t = tests[i];
+
+      var title = t.title;
+      var selection = t.test;
+      var expected = t.expected;
+
+      test(title, () {
+        var results = MarkdownParser().hasRangeMark(_testText4, selection);
+
+        expect(results, expected);
+      });
+    }
+  });
 }
 
 class _Test {

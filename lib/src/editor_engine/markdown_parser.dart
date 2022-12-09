@@ -226,6 +226,22 @@ class RangeSymbol {
   final TextSelection selection;
 
   RangeSymbol(this.symbol, this.selection);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! RangeSymbol) {
+      return false;
+    }
+    return symbol == other.symbol && selection == other.selection;
+  }
+
+  @override
+  int get hashCode => symbol.hashCode * selection.hashCode;
+
+  @override
+  String toString() {
+    return "RangeSymbol: $symbol [${selection.start}:${selection.end}]";
+  }
 }
 
 class _RangeSymbol {
