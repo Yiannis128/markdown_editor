@@ -76,7 +76,12 @@ The following features are planned to be added in due time:
 - [ ] Horizontal rule
 
 The following items maybe added in the future, however, are not being worked on:
+
 - [ ] Fancy-view: Inserted markers in text view appear to preview them.
 - [ ] Fancy-view: Images appear underneath image declaration in text.
 - [ ] Hide Markdown Mode
 - [ ] Hide Markdown Mode: Inline image view
+- [ ] Extendable editor engine interface: Add the ability to endlessly customize the
+editor as required. This includes, easily extendable custom toolbar actions, Hide
+Markdown Mode custom rendering, and Fancy-view custom rendering.
+
