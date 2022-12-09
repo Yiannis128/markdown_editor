@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:markdown_editor/src/editor_engine/selection_details.dart';
 
 /// # _TextEditContext
 /// Represents a text editing stack before it has been applied to the text body.
 class TextEditContext {
-  final stack = <TextEdit>[];
-  final SelectionDetails selection;
+  final List<TextEdit> stack;
+  final TextSelection selection;
   TextSelection? _newSelection;
 
-  TextEditContext(this.selection);
+  TextEditContext(this.selection) : stack = <TextEdit>[];
+
+  TextEditContext.fromArray(this.selection, List<TextEdit> edits) : stack = edits;
 
   void addEdits(List<TextEdit> edits) {
     stack.addAll(edits);
@@ -17,14 +18,16 @@ class TextEditContext {
   /// # apply
   /// Applies the edits to the text. At the same time, adjusts transforms
   /// performed by the next `_TextEdit` added so that they aren't corrupt.
-  String apply(String text) {
+  String apply(String text, {bool reverseOrder = false}) {
+    var applyStack = reverseOrder ? stack.reversed.toList() : stack;
+
     var end = selection.end;
-    for (var edit in stack) {
+    for (var edit in applyStack) {
       end += edit.selectionEndOffset;
       text = text.replaceRange(edit.startIndex, edit.endIndex, edit.newText);
     }
 
-    var start = selection.start + stack.first.selectionStartOffset;
+    var start = selection.start + applyStack.first.selectionStartOffset;
 
     // Clamp selection to make sure it is never out of bounds.
     start = start.clamp(0, text.length);

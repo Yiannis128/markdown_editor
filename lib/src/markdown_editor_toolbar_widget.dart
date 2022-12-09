@@ -249,7 +249,7 @@ class _MarkdownEditorToolbarWidgetState
       rowItems[index] = itemWidget;
     });
 
-    final editContext = TextEditContext(_selectionDetails);
+    final editContext = TextEditContext(_selectionDetails.selection);
     editContext.addEdits(edits);
 
     // Call replace text to propagate changes to InputField widget.
