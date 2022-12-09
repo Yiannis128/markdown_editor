@@ -50,11 +50,18 @@ class _MarkdownEditorWidgetState extends State<MarkdownEditorWidget> {
         ),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(30, 10, 30, 30),
+            padding: const EdgeInsets.fromLTRB(15, 10, 15, 15),
             child: TextField(
               focusNode: _focusNode,
               // Remove the line at the bottom of the text field.
-              decoration: const InputDecoration.collapsed(hintText: ""),
+              decoration: const InputDecoration(
+                isCollapsed: true,
+                contentPadding: EdgeInsets.all(6),
+                hintText: "",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(3)),
+                ),
+              ),
               minLines: 1,
               maxLines: null,
               controller: _controller,
