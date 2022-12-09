@@ -15,8 +15,6 @@ and the Flutter guide for
 
 [![Dart Tests](https://github.com/Yiannis128/markdown_editor/actions/workflows/dart.yml/badge.svg?branch=master&event=push)](https://github.com/Yiannis128/markdown_editor/actions/workflows/dart.yml)
 
-[![Dart Tests](https://github.com/Yiannis128/markdown_editor/actions/workflows/dart.yml/badge.svg?branch=master&event=milestone)](https://github.com/Yiannis128/markdown_editor/actions/workflows/dart.yml)
-
 Flutter library that contains widgets for editing markdown.
 
 ## Features
