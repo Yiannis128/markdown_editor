@@ -53,16 +53,25 @@ class MarkdownParser {
     return null;
   }
 
-  List getSelectedParagraphs(String text, TextSelection selection) {
+  /// # getSelectedParagraphs
+  /// Returns information about the currently selected paragraphs. Given text
+  /// and selection, returns List<String> of the paragraphs selected along with
+  /// the start of the pargraph in an array.
+  SelectedParagraphs getSelectedParagraphs(
+      String text, TextSelection selection) {
     var start = selection.start;
     var end = selection.end;
 
     // Split text by double lines since that's what cuts of range marks.
     var textParagraphs = text.split("\n\n");
-    // FIXME: Not detecting double new line in some instances.
-    // Find out which paragraphs the selection is inside, and remove others. /
+
+    final paragraphStartOffsets = <int>[];
+
+    // Find out which paragraphs the selection is inside, and remove others.
     // This is the accummulated paragraph length used for calculating if
-    // selection / is inside specific paragraph.
+    // selection is inside specific paragraph. `resultPStart` contains the
+    // start of the first paragraph, `paragraphStart` is used in this function
+    // for calculations.
     var paragraphStart = 0;
     var trimmedStart = false;
     for (var index = 0; index < textParagraphs.length; index++) {
@@ -71,14 +80,34 @@ class MarkdownParser {
       var paragraphEnd = paragraphStart + paragraph.length;
 
       // Check if start of paragraph has been trimmed, if not then do so.
-      if (!trimmedStart && start >= paragraphStart && start < paragraphEnd) {
-        // Trim start
-        var oldCount = textParagraphs.length;
-        textParagraphs = textParagraphs.sublist(index);
+      // Edge case: Check if start/end is between paragraphs, if that's the
+      // case, then it will cause a bug where then whole text is scanned.
+      if (!trimmedStart) {
+        // Edge case: Check if start is in the space between current and
+        // previous paragraph.
+        if (!trimmedStart && start == paragraphStart - 1) {
+          // If that's the case, then set start to the correct value.
+          start = paragraphStart;
+        }
 
-        // Adjust index.
-        index -= oldCount - textParagraphs.length;
-        trimmedStart = true;
+        if (start >= paragraphStart && start <= paragraphEnd) {
+          // Trim start
+          var oldCount = textParagraphs.length;
+          textParagraphs = textParagraphs.sublist(index);
+
+          // Adjust index.
+          index -= oldCount - textParagraphs.length;
+          trimmedStart = true;
+        }
+      }
+
+      if (trimmedStart) {
+        paragraphStartOffsets.add(paragraphStart);
+      }
+
+      // Edge case: Check if end is between the current and next paragraph.
+      if (end == paragraphEnd + 1) {
+        end = paragraphEnd;
       }
 
       // Trim end.
@@ -91,11 +120,13 @@ class MarkdownParser {
       }
 
       // + 2 to account for the \n\n that got split out.
-      // TODO account for variable split.
       paragraphStart = paragraphEnd + 2;
     }
 
-    return [textParagraphs, paragraphStart];
+    return SelectedParagraphs(
+      paragraphs: textParagraphs,
+      paragraphStartOffsets: paragraphStartOffsets,
+    );
   }
 
   /// # hasRangeMark
@@ -117,16 +148,10 @@ class MarkdownParser {
       return [];
     }
 
-    var textParagraphsResult = getSelectedParagraphs(text, selection);
-    List<String> textParagraphs = textParagraphsResult[0];
-    int paragraphStart = textParagraphsResult[1];
-
-    print("\n\n");
-    print("Selection start: ${selection.start}");
-    print("Selection end: ${selection.end}");
-    print("Sel length: ${selection.end - selection.start}");
-    print("pStart: $paragraphStart");
-    print("\n\n");
+    var selectedParagraphs = getSelectedParagraphs(text, selection);
+    List<String> textParagraphs = selectedParagraphs.paragraphs;
+    // FIXME We cache the result so no need to keep recalculating it.
+    int paragraphStart = selectedParagraphs.paragraphStartOffsets[0];
 
     // Map of range symbol and location.
     final symbolsFound = <_RangeSymbol>[];
@@ -209,4 +234,29 @@ class _RangeSymbol {
   final String symbol;
 
   _RangeSymbol(this.textOffset, this.paragraphOffset, this.symbol);
+}
+
+/// # SelectedParagraphs
+/// Describes paragraphs that have been selected by cursor. This is returned by
+/// `MarkdownParser().getSelectedParagraphs`.
+class SelectedParagraphs {
+  final List<String> paragraphs;
+  final List<int> paragraphStartOffsets;
+
+  SelectedParagraphs({
+    required this.paragraphs,
+    required this.paragraphStartOffsets,
+  });
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! SelectedParagraphs) {
+      return false;
+    }
+    return paragraphs == other.paragraphs &&
+        paragraphStartOffsets == other.paragraphStartOffsets;
+  }
+
+  @override
+  int get hashCode => paragraphs.hashCode * paragraphStartOffsets.hashCode;
 }

@@ -19,13 +19,14 @@ class BlockQuoteToggleItem extends HeaderMarkToggleItem {
   @override
   List<TextEdit> handleHeaderMark(bool select) {
     final result = <TextEdit>[];
-    var res = MarkdownParser().getSelectedParagraphs(
+    var selectedParagraphs = MarkdownParser().getSelectedParagraphs(
       selectionDetails.text,
       selectionDetails.selection,
     );
 
-    List<String> paragraphs = res[0];
-    int pStart = res[1];
+    List<String> paragraphs = selectedParagraphs.paragraphs;
+    // FIXME We cache the selected paragraphs so no need to recalculate them.
+    int pStart = selectedParagraphs.paragraphStartOffsets[0];
 
     if (select) {
       for (var p in paragraphs) {

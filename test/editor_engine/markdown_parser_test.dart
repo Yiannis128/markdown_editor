@@ -1,5 +1,17 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:markdown_editor/src/editor_engine/markdown_parser.dart';
+
+const String _testText1 = """AAAAA BBBBB CCCCC DDDDD
+AAAAA BBBBB CCCCC DDDDD
+
+AAAAA BBBBB CCCCC DDDDD
+AAAAA BBBBB CCCCC DDDDD
+AAAAA BBBBB CCCCC DDDDD
+
+AAAAA BBBBB CCCCC DDDDD
+
+""";
 
 void main() {
   group("MarkdownParser hasHeaderMark: other", () {
@@ -148,7 +160,139 @@ void main() {
     }
   });
 
-  group("MarkdownParser getSelectedParagraphs", () {});
+  group("MarkdownParser getSelectedParagraphs:", () {
+    List<_Test> tests = [
+      _Test(
+        title: "Cursor at start of text",
+        test: const TextSelection(baseOffset: 0, extentOffset: 0),
+        expected: [
+          0,
+          <String>["AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD"],
+        ],
+      ),
+      _Test(
+        title: "Cursor at end of text",
+        test: const TextSelection(
+            baseOffset: _testText1.length, extentOffset: _testText1.length),
+        expected: [
+          147,
+          <String>[""],
+        ],
+      ),
+      _Test(
+        title: "Cursor before a paragraph end (before a \\n\\n)",
+        test: const TextSelection(baseOffset: 47, extentOffset: 47),
+        expected: [
+          0,
+          <String>["AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD"],
+        ],
+      ),
+      _Test(
+        title: "Multi paragraph selection from start",
+        test: const TextSelection(baseOffset: 0, extentOffset: 50),
+        expected: [
+          0,
+          <String>[
+            "AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD",
+            "AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD",
+          ],
+        ],
+      ),
+      _Test(
+        title: "Multi paragraph selection from second paragraph",
+        test: const TextSelection(
+          baseOffset: 50,
+          extentOffset: 130,
+        ),
+        expected: [
+          49,
+          <String>[
+            "AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD",
+            "AAAAA BBBBB CCCCC DDDDD"
+          ],
+        ],
+      ),
+      _Test(
+        title: "Multi paragraph selection ending at end of text",
+        test: const TextSelection(
+            baseOffset: 50, extentOffset: _testText1.length),
+        expected: [
+          49,
+          <String>[
+            "AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD",
+            "AAAAA BBBBB CCCCC DDDDD",
+            "",
+          ],
+        ],
+      ),
+      _Test(
+        title: "All text selected",
+        test:
+            const TextSelection(baseOffset: 0, extentOffset: _testText1.length),
+        expected: [
+          0,
+          <String>[
+            "AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD",
+            "AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD",
+            "AAAAA BBBBB CCCCC DDDDD",
+            "",
+          ],
+        ],
+      ),
+      _Test(
+        title: "End single paragraph selection on an empty line",
+        test: const TextSelection(baseOffset: 50, extentOffset: 121),
+        expected: [
+          49,
+          <String>[
+            "AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD",
+          ],
+        ],
+      ),
+      _Test(
+        title: "End multi paragraph selection on an empty line",
+        test: const TextSelection(baseOffset: 10, extentOffset: 121),
+        expected: [
+          0,
+          <String>[
+            "AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD",
+            "AAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD\nAAAAA BBBBB CCCCC DDDDD",
+          ],
+        ],
+      ),
+    ];
+
+    for (var i = 0; i < tests.length; i++) {
+      var t = tests[i];
+
+      var title = t.title;
+      var selection = t.test;
+      var expected = t.expected;
+
+      var expectedPStart = expected[0];
+      var expectedParagraphs = expected[1];
+
+      test(title, () {
+        var selectedParagraphs =
+            MarkdownParser().getSelectedParagraphs(_testText1, selection);
+
+        List<String> paragraphs = selectedParagraphs.paragraphs;
+        expect(paragraphs, expectedParagraphs);
+
+        // FIXME Need to test for all paragraphs equalling. This whole test needs
+        // refactoing.
+        int pStart = selectedParagraphs.paragraphStartOffsets[0];
+        expect(pStart, expectedPStart);
+      });
+    }
+  });
 
   group("MarkdownParser hasRangeMark", () {});
+}
+
+class _Test {
+  final String title;
+  final dynamic test;
+  final dynamic expected;
+  _Test({required this.title, required this.test, required this.expected});
 }
