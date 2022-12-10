@@ -9,7 +9,7 @@ class TextEditContext {
 
   TextEditContext(this.selection) : stack = <TextEdit>[];
 
-  TextEditContext.fromArray(this.selection, List<TextEdit> edits) : stack = edits;
+  TextEditContext.fromArray({required this.selection, required List<TextEdit> edits}) : stack = edits;
 
   void addEdits(List<TextEdit> edits) {
     stack.addAll(edits);
