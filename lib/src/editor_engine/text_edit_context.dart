@@ -47,6 +47,11 @@ class TextEditContext {
 /// Represents a change in the text, it contains only details of the change
 /// along where the change should occur, along with the new selection.
 ///
+/// * `selectionStartOffset` is the offset of start selection when this text
+/// edit is applied.
+/// * `selectionEndOffset` is the offset of end selection when this text edit
+/// is applied.
+///
 /// NOTE: Perhaps it is worth moving the selection start offset to another place
 /// due to the start index in context using the first one in the stack, unlike
 /// end which uses all of them.
