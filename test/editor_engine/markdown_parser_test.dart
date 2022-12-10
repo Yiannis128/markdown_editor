@@ -185,7 +185,7 @@ void main() {
     }
   });
 
-  group("MarkdownParser getSelectedParagraphs:", () {
+  group("MarkdownParser getSelectedParagraphs basic:", () {
     List<TestCase> tests = [
       TestCase(
         title: "Cursor at start of text",
@@ -308,6 +308,30 @@ void main() {
         // refactoing.
         int pStart = selectedParagraphs.paragraphStartOffsets[0];
         expect(pStart, expectedPStart);
+      });
+    }
+  });
+
+  group("MarkdownParser getSelectedParagraphs empty result:", () {
+    List<TestCase> tests = [
+      TestCase(
+        title: "Cursor at empty line between paragraphs",
+        test: const TextSelection(baseOffset: 146, extentOffset: 146),
+        expected: SelectedParagraphs(paragraphs: [], paragraphStartOffsets: []),
+      ),
+    ];
+
+    for (var i = 0; i < tests.length; i++) {
+      var t = tests[i];
+      var title = t.title;
+      var selection = t.test;
+      var expected = t.expected;
+
+      test(title, () {
+        var selectedParagraphs =
+            MarkdownParser().getSelectedParagraphs(_testText1, selection);
+
+        expect(selectedParagraphs, expected);
       });
     }
   });

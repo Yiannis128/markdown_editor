@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class MarkdownParser {
@@ -123,6 +124,16 @@ class MarkdownParser {
       paragraphStart = paragraphEnd + 2;
     }
 
+    /// Edge case: If selection occurs on a removed line (between paragraphs),
+    /// then the method will return all textParagraphs, but none are selected,
+    /// this check ensures that doesn't happen.
+    if (paragraphStartOffsets.isEmpty) {
+      return SelectedParagraphs(
+        paragraphs: [],
+        paragraphStartOffsets: [],
+      );
+    }
+
     return SelectedParagraphs(
       paragraphs: textParagraphs,
       paragraphStartOffsets: paragraphStartOffsets,
@@ -144,12 +155,11 @@ class MarkdownParser {
   List<RangeSymbol> hasRangeMark(String text, TextSelection selection) {
     const rangeSymbols = <String>["**", "__", "~~"];
 
-    if (selection.isCollapsed) {
-      return [];
-    }
-
     var selectedParagraphs = getSelectedParagraphs(text, selection);
     List<String> textParagraphs = selectedParagraphs.paragraphs;
+    if (textParagraphs.isEmpty) {
+      return [];
+    }
     // FIXME We cache the result so no need to keep recalculating it.
     int paragraphStart = selectedParagraphs.paragraphStartOffsets[0];
 
@@ -269,10 +279,15 @@ class SelectedParagraphs {
     if (other is! SelectedParagraphs) {
       return false;
     }
-    return paragraphs == other.paragraphs &&
-        paragraphStartOffsets == other.paragraphStartOffsets;
+    return listEquals(paragraphs, other.paragraphs) &&
+        listEquals(paragraphStartOffsets, other.paragraphStartOffsets);
   }
 
   @override
   int get hashCode => paragraphs.hashCode * paragraphStartOffsets.hashCode;
+
+  @override
+  String toString() {
+    return "SelectedParagraphs: ${paragraphs.length} - $paragraphStartOffsets";
+  }
 }
