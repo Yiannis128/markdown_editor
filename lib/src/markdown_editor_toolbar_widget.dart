@@ -124,6 +124,20 @@ class _MarkdownEditorToolbarWidgetState
     var end = _selectionDetails.end;
     var line = _selectionDetails.line;
 
+    bool h1 = false,
+    h2 = false,
+    h3 = false,
+    h4 = false,
+    b = false,
+    i = false,
+    s = false,
+    ul = false,
+    ol = false,
+    hl = false,
+    img = false,
+    bq = false,
+    code = false;
+
     // Check if nothing is selected.
     if (start == end) {
       // Detect all marks.
@@ -133,78 +147,70 @@ class _MarkdownEditorToolbarWidgetState
         // Activate all the appropriate h mark.
         switch (hMark) {
           case "# ":
-            setState(() {
-              setEnabledHeader(h1: true);
-            });
+            h1 = true;
             break;
           case "## ":
-            setState(() {
-              setEnabledHeader(h2: true);
-            });
+            h2 = true;
             break;
           case "### ":
-            setState(() {
-              setEnabledHeader(h3: true);
-            });
+            h3 = true;
             break;
           case "#### ":
-            setState(() {
-              setEnabledHeader(h4: true);
-            });
+            h4 = true;
             break;
           case "* ":
-            setState(() {
-              setEnabledHeader(ul: true);
-            });
+            ul = true;
             break;
           case "---":
-            setState(() {
-              setEnabledHeader(hl: true);
-            });
+            hl = true;
             break;
           case "> ":
-            setState(() {
-              setEnabledHeader(bq: true);
-            });
+            bq = true;
             break;
           case "1. ":
-            setState(() {
-              setEnabledHeader(ol: true);
-            });
-            break;
-        }
-      } else {
-        // If no header mark, then disable all header mark items.
-        setState(() {
-          setEnabledHeader();
-        });
-      }
-    } else {
-      // Range selections
-      var rangeMarks = MarkdownParser().hasRangeMark(
-        _selectionDetails.text,
-        _selectionDetails.selection,
-      );
-
-      bool b = false, i = false, s = false;
-      for (var mark in rangeMarks) {
-        switch (mark.symbol) {
-          case "**":
-            b = true;
-            break;
-          case "__":
-            i = true;
-            break;
-          case "~~":
-            s = true;
+            ol = true;
             break;
         }
       }
-
-      setState(() {
-        setEnabledHeader(b: b, i: i, s: s);
-      });
     }
+
+    // Range selections
+    var rangeMarks = MarkdownParser().hasRangeMark(
+      _selectionDetails.text,
+      _selectionDetails.selection,
+    );
+
+    for (var mark in rangeMarks) {
+      switch (mark.symbol) {
+        case "**":
+          b = true;
+          break;
+        case "__":
+          i = true;
+          break;
+        case "~~":
+          s = true;
+          break;
+      }
+    }
+
+    setState(() {
+      setEnabledHeader(
+        h1: h1,
+        h2: h2,
+        h3: h3,
+        h4: h4,
+        b: b,
+        i: i,
+        s: s,
+        ul: ul,
+        ol: ol,
+        hl: hl,
+        img: img,
+        bq: bq,
+        code: code,
+      );
+    });
   }
 
   void setEnabledHeader({
