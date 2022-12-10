@@ -11,7 +11,7 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages).
 -->
 
-# markdown_editor
+# Markdown Editor (markdown_editor)
 
 [![Main](https://github.com/Yiannis128/markdown_editor/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/Yiannis128/markdown_editor/actions/workflows/main.yml)
 
@@ -72,9 +72,9 @@ be accepted or denied. If unsure, please file an issue about it.
 The following features are planned to be added in due time:
 
 - [ ] Unit tests to make sure features work as intended.
-- [ ] Add multi-line editing.
+- [*] Add multi-line editing.
 - [ ] Numbered list support.
-- [ ] Bold, Italic, Underline, Strike-through
+- [*] Bold, Italic, Underline, Strike-through
 - [ ] Horizontal rule
 
 The following items maybe added in the future, however, are not being worked on:
