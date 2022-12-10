@@ -13,7 +13,7 @@ and the Flutter guide for
 
 # markdown_editor
 
-[![Dart Tests](https://github.com/Yiannis128/markdown_editor/actions/workflows/dart.yml/badge.svg?branch=master&event=push)](https://github.com/Yiannis128/markdown_editor/actions/workflows/dart.yml)
+[![Main](https://github.com/Yiannis128/markdown_editor/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/Yiannis128/markdown_editor/actions/workflows/main.yml)
 
 Flutter library that contains widgets for editing markdown.
 
