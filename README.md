@@ -71,7 +71,7 @@ be accepted or denied. If unsure, please file an issue about it.
 
 The following features are planned to be added in due time:
 
-- [ ] Tests to make sure features work as intended.
+- [ ] Unit tests to make sure features work as intended.
 - [ ] Add multi-line editing.
 - [ ] Numbered list support.
 - [ ] Bold, Italic, Underline, Strike-through
@@ -79,6 +79,7 @@ The following features are planned to be added in due time:
 
 The following items maybe added in the future, however, are not being worked on:
 
+- [ ] UI tests to make sure UI works as intended.
 - [ ] Fancy-view: Inserted markers in text view appear to preview them.
 - [ ] Fancy-view: Images appear underneath image declaration in text.
 - [ ] Hide Markdown Mode
