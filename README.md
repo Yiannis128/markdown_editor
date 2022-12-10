@@ -72,9 +72,9 @@ be accepted or denied. If unsure, please file an issue about it.
 The following features are planned to be added in due time:
 
 - [ ] Unit tests to make sure features work as intended.
-- [*] Add multi-line editing.
+- [x] Add multi-line editing.
 - [ ] Numbered list support.
-- [*] Bold, Italic, Underline, Strike-through
+- [x] Bold, Italic, Underline, Strike-through
 - [ ] Horizontal rule
 
 The following items maybe added in the future, however, are not being worked on:
