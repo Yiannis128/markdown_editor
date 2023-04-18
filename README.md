@@ -13,7 +13,8 @@ and the Flutter guide for
 
 # Markdown Editor (markdown_editor)
 
-> **⚠️ Warning, this library is still in development, there are frequent improvements and code changes approaching the first release and milestone.**
+> **⚠️ Warning, this library is still in development, there are frequent improvements and code changes approaching the first release and milestone.
+> It is recommended to wait for the first release before using in a production application.**
 
 [![Main](https://github.com/Yiannis128/markdown_editor/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/Yiannis128/markdown_editor/actions/workflows/main.yml)
 
