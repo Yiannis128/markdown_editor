@@ -13,9 +13,11 @@ and the Flutter guide for
 
 # Markdown Editor (markdown_editor)
 
+> **⚠️ Warning, this library is still in development, there are frequent improvements and code changes approaching the first release and milestone.**
+
 [![Main](https://github.com/Yiannis128/markdown_editor/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/Yiannis128/markdown_editor/actions/workflows/main.yml)
 
-Flutter library that contains widgets for editing markdown. **Warning, this library is still in development, there are frequent improvements and code changes approaching the first release and milestone**.
+Flutter library that contains widgets for editing markdown.
 
 ## Features
 
